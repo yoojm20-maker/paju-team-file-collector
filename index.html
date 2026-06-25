@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>팀 제출 파일 취합기 시작 템플릿</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #5f6b7a;
+      --line: #d7dee8;
+      --blue: #215fbd;
+      --blue-soft: #eaf2ff;
+      --green-soft: #eaf7ef;
+      --orange-soft: #fff3e3;
+      --red-soft: #fff0f0;
+      --red-line: #c2410c;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main { max-width: 1120px; margin: 0 auto; padding: 24px 18px 52px; }
+    h1 { margin: 0 0 12px; font-size: clamp(28px, 4vw, 42px); line-height: 1.18; letter-spacing: 0; }
+    h2 { margin: 0 0 12px; font-size: 22px; }
+    h3 { margin: 0 0 8px; font-size: 17px; }
+    p { margin: 0 0 10px; }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    section, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      margin-top: 16px;
+    }
+    label { display: block; font-weight: 700; margin: 12px 0 6px; }
+    input, button { font: inherit; }
+    input[type="text"], input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #b7c1cf;
+      border-radius: 6px;
+      background: #fff;
+    }
+    button {
+      border: 0;
+      border-radius: 6px;
+      padding: 10px 14px;
+      background: var(--blue);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:disabled { cursor: not-allowed; opacity: 0.55; }
+    button.secondary { background: #eef2f7; color: #1f2937; border: 1px solid #c8d2df; }
+    button.warning { background: #a34d0b; }
+    .top-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .top-grid > div {
+      min-height: 118px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .top-grid strong { display: block; margin-bottom: 6px; color: #111827; }
+    .notice {
+      border-left: 5px solid var(--red-line);
+      background: var(--red-soft);
+      padding: 12px 14px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+    .deploy-note {
+      background: var(--blue-soft);
+      border-left: 5px solid var(--blue);
+      padding: 12px 14px;
+      border-radius: 6px;
+      color: #12376d;
+    }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
+    .status {
+      min-height: 46px;
+      border: 1px solid #c7d2e0;
+      border-radius: 6px;
+      background: #fbfcfe;
+      padding: 10px 12px;
+      color: var(--muted);
+    }
+    .status.ok { background: var(--green-soft); color: #166534; border-color: #b9e0c4; }
+    .status.warn { background: var(--orange-soft); color: #8a4b08; border-color: #f2c48d; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; min-width: 760px; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+    th, td { border: 1px solid var(--line); padding: 8px; text-align: left; vertical-align: top; }
+    th { background: #edf3fb; white-space: nowrap; }
+    .muted { color: var(--muted); }
+    .tag {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 2px 8px;
+      background: #eef2f7;
+      font-size: 12px;
+      font-weight: 700;
+      color: #344256;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 900px) {
+      .top-grid, .form-grid { grid-template-columns: 1fr; }
+      main { padding-top: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>3회차 CSV 정리 도구 확장판: 팀 제출 파일 취합기</h1>
+    <p class="notice">3회차 CSV 정리 도구를 GitHub/Vercel 수업용 샘플로 확장합니다. 실제 개인정보, 민원 원문, 내부자료, 예산·계약 자료는 업로드하지 않습니다.</p>
+
+    <div class="top-grid" aria-label="첫 화면 확인 영역">
+      <div>
+        <strong>오늘 만들 결과물</strong>
+        3회차 개인용 CSV 정리 도구를 팀별 CSV 통합, 규칙 적용, 결과표, 다운로드까지 되는 Vercel 배포형 화면으로 넓힙니다.
+      </div>
+      <div>
+        <strong>성공 기준</strong>
+        수업용 샘플 CSV 불러오기, 업로드 목록 확인, 규칙 적용, 결과표 확인, 통합 CSV 다운로드까지 한 화면에서 됩니다.
+      </div>
+      <div>
+        <strong>대체 완료 기준</strong>
+        API 연결이 막히면 브라우저 로컬 처리 결과와 다운로드 파일을 캡처해 제출합니다.
+      </div>
+      <div>
+        <strong>민감자료 경고</strong>
+        실제 개인정보, 민원 원문, 내부자료, 예산·계약 자료는 연습 파일에도 넣지 않습니다.
+      </div>
+    </div>
+
+    <section>
+      <h2>1. 3회차 도구 확장 정보와 CSV 업로드</h2>
+      <p class="deploy-note">GitHub 저장소에 올린 뒤 Vercel 프로젝트에서는 이 파일을 <strong>root/index.html</strong> 또는 <strong>public/index.html</strong> 위치에 둡니다. 현재 artifacts 폴더는 수업 자료 보관 위치입니다.</p>
+      <div class="form-grid">
+        <div>
+          <label for="teamName">팀명</label>
+          <input id="teamName" type="text" placeholder="예: A팀" />
+        </div>
+        <div>
+          <label for="submitter">제출자</label>
+          <input id="submitter" type="text" placeholder="예: 김샘플" />
+        </div>
+      </div>
+      <label for="csvFile">CSV 파일</label>
+      <input id="csvFile" type="file" accept=".csv,text/csv" />
+      <div class="controls">
+        <button id="uploadBtn" type="button">업로드 목록에 추가</button>
+        <button id="loadSamplesBtn" class="secondary" type="button">샘플 CSV 불러오기</button>
+        <button id="clearBtn" class="secondary" type="button">목록 비우기</button>
+      </div>
+      <p class="muted">수업용 샘플 필수 열: 팀명, 제출자, 부서명, 업무유형, 제목, 처리상태, 처리기한, 우선순위, 내용</p>
+    </section>
+
+    <section>
+      <h2>2. 업로드 목록</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>팀명</th><th>제출자</th><th>파일명</th><th>행 수</th><th>상태</th></tr>
+          </thead>
+          <tbody id="uploadList"><tr><td colspan="5">아직 업로드된 파일이 없습니다.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. API 상태와 규칙 적용</h2>
+      <p id="apiStatus" class="status" role="status">API 상태: 아직 호출하지 않았습니다. /api/apply-rules가 없거나 실패하면 브라우저 fallback 규칙으로 처리합니다.</p>
+      <div class="controls">
+        <button id="applyRulesBtn" class="warning" type="button">규칙 적용</button>
+        <button id="downloadBtn" class="secondary" type="button" disabled>다운로드</button>
+      </div>
+      <p class="muted">Vercel 배포 후에는 /api/apply-rules 응답을 사용합니다. API가 없거나 실패하면 같은 규칙을 브라우저에서 실행합니다.</p>
+    </section>
+
+    <section>
+      <h2>4. 결과표</h2>
+      <p id="summary" class="muted">규칙 적용 후 결과표가 표시됩니다.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>팀명</th>
+              <th>제출자</th>
+              <th>부서명</th>
+              <th>업무유형</th>
+              <th>제목</th>
+              <th>처리상태</th>
+              <th>처리기한</th>
+              <th>우선순위</th>
+              <th>확인필요</th>
+              <th>정리메모</th>
+            </tr>
+          </thead>
+          <tbody id="resultTable"><tr><td colspan="10">아직 결과가 없습니다.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const requiredHeaders = ['팀명', '제출자', '부서명', '업무유형', '제목', '처리상태', '처리기한', '우선순위', '내용'];
+    const sampleFiles = [
+      {
+        name: 'team-a-upload.csv',
+        text: [
+          '팀명,제출자,부서명,업무유형,제목,처리상태,처리기한,우선순위,내용',
+          'A팀,김샘플,기획팀,자료취합,상반기 보고서 제출,접수,2026-07-24,높음,수업용 가상 보고서 항목입니다.',
+          'A팀,김샘플,민원지원팀,확인요청,FAQ 초안 확인,진행중,,보통,기한 누락 확인용 샘플입니다.'
+        ].join('\n')
+      },
+      {
+        name: 'team-b-upload.csv',
+        text: [
+          '팀명,제출자,부서명,업무유형,제목,처리상태,처리기한,우선순위,내용',
+          'B팀,이샘플,홍보팀,자료취합,카드뉴스 문안 제출,완료,2026-07-22,중,표준화 확인용 샘플입니다.',
+          'B팀,이샘플,기획팀,자료취합,상반기 보고서 제출,대기,2026-07-24,상,중복 후보 확인용 샘플입니다.'
+        ].join('\n')
+      },
+      {
+        name: 'team-c-upload.csv',
+        text: [
+          '팀명,제출자,부서명,업무유형,제목,처리상태,처리기한,우선순위,내용',
+          'C팀,박샘플,교육팀,검토요청,교육자료 링크 정리,처리 전,2026/07/26,낮음,날짜 형식 경고 확인용 샘플입니다.',
+          'C팀,박샘플,총무팀,확인요청,회의실 예약표 제출,진행,2026-07-25,긴급,우선순위 표준화 확인용 샘플입니다.'
+        ].join('\n')
+      }
+    ];
+
+    const uploads = [];
+    let resultRows = [];
+    let latestSummary = null;
+    let latestWarnings = [];
+
+    const uploadList = document.querySelector('#uploadList');
+    const resultTable = document.querySelector('#resultTable');
+    const apiStatus = document.querySelector('#apiStatus');
+    const summary = document.querySelector('#summary');
+    const downloadBtn = document.querySelector('#downloadBtn');
+    const applyRulesBtn = document.querySelector('#applyRulesBtn');
+
+    document.querySelector('#uploadBtn').addEventListener('click', async () => {
+      const teamName = document.querySelector('#teamName').value.trim();
+      const submitter = document.querySelector('#submitter').value.trim();
+      const file = document.querySelector('#csvFile').files[0];
+      if (!teamName || !submitter || !file) {
+        setStatus('warn', '팀명, 제출자, CSV 파일을 모두 입력하세요.');
+        return;
+      }
+      try {
+        addUpload(file.name, await file.text(), teamName, submitter);
+        setStatus('ok', `${file.name} 파일을 업로드 목록에 추가했습니다.`);
+      } catch (error) {
+        setStatus('warn', `CSV 파일을 읽지 못했습니다: ${error.message}`);
+      }
+    });
+
+    document.querySelector('#loadSamplesBtn').addEventListener('click', () => {
+      sampleFiles.forEach(sample => addUpload(sample.name, sample.text, '', ''));
+      setStatus('ok', '샘플 CSV 3개를 업로드 목록에 추가했습니다.');
+    });
+
+    document.querySelector('#clearBtn').addEventListener('click', () => {
+      uploads.splice(0, uploads.length);
+      resultRows = [];
+      latestSummary = null;
+      latestWarnings = [];
+      renderUploads();
+      renderResults();
+      downloadBtn.disabled = true;
+      setStatus('', 'API 상태: 목록을 비웠습니다. 샘플 CSV를 다시 불러오거나 새 CSV를 추가하세요.');
+    });
+
+    document.querySelector('#applyRulesBtn').addEventListener('click', async () => {
+      if (uploads.length === 0) {
+        setStatus('warn', '규칙을 적용할 CSV가 없습니다. 샘플 CSV 불러오기 또는 파일 업로드를 먼저 진행하세요.');
+        return;
+      }
+
+      const rows = uploads.flatMap(item => item.rows);
+      if (rows.length === 0) {
+        setStatus('warn', '규칙을 적용할 유효한 CSV 행이 없습니다. 필수 헤더와 CSV 내용을 확인하세요.');
+        renderResults();
+        downloadBtn.disabled = true;
+        return;
+      }
+
+      latestSummary = null;
+      latestWarnings = [];
+      downloadBtn.disabled = true;
+      applyRulesBtn.disabled = true;
+      applyRulesBtn.setAttribute('aria-busy', 'true');
+      setStatus('', 'API 상태: /api/apply-rules 호출 중입니다.');
+      try {
+        const response = await fetch('/api/apply-rules', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rows, source: 'starter-template' })
+        });
+        const data = await readJsonResponse(response);
+        if (!response.ok) {
+          throw new Error(data?.message || data?.error || `HTTP ${response.status}`);
+        }
+        const result = normalizeApiResult(data, rows.length);
+        resultRows = result.rows;
+        latestSummary = result.summary;
+        latestWarnings = result.warnings;
+        setStatus('ok', `API 상태: /api/apply-rules 성공. ${statusSummaryText(latestSummary, latestWarnings)}`);
+      } catch (error) {
+        const result = buildLocalResult(rows, error.message);
+        resultRows = result.rows;
+        latestSummary = result.summary;
+        latestWarnings = result.warnings;
+        setStatus('warn', `API 상태: API 오류(${error.message}). 브라우저 fallback 규칙으로 처리했습니다.`);
+      } finally {
+        applyRulesBtn.disabled = false;
+        applyRulesBtn.removeAttribute('aria-busy');
+      }
+      renderResults();
+      downloadBtn.disabled = resultRows.length === 0;
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      if (resultRows.length === 0) {
+        setStatus('warn', '다운로드할 결과가 없습니다. 규칙 적용을 먼저 누르세요.');
+        return;
+      }
+      const csv = toCsv(resultRows);
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'team-upload-merged-result.csv';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setStatus('ok', '다운로드: team-upload-merged-result.csv 파일을 생성했습니다.');
+    });
+
+    function addUpload(fileName, text, fallbackTeamName, fallbackSubmitter) {
+      const parsed = parseCsv(text);
+      const missingHeaders = requiredHeaders.filter(header => !parsed.headers.includes(header));
+      if (missingHeaders.length > 0) {
+        uploads.push({
+          teamName: fallbackTeamName || '-',
+          submitter: fallbackSubmitter || '-',
+          fileName,
+          rows: [],
+          rowCount: 0,
+          status: `필수 헤더 누락: ${missingHeaders.join(', ')}`
+        });
+        renderUploads();
+        return;
+      }
+      const rows = parsed.rows.map(row => ({
+        ...row,
+        팀명: row['팀명'] || fallbackTeamName,
+        제출자: row['제출자'] || fallbackSubmitter,
+        원본파일: fileName
+      }));
+      uploads.push({
+        teamName: rows[0]?.['팀명'] || fallbackTeamName || '-',
+        submitter: rows[0]?.['제출자'] || fallbackSubmitter || '-',
+        fileName,
+        rows,
+        rowCount: rows.length,
+        status: rows.length ? '읽기 완료' : '읽기 완료: 행 없음'
+      });
+      renderUploads();
+    }
+
+    function parseCsv(text) {
+      const rows = [];
+      let current = '';
+      let row = [];
+      let inQuotes = false;
+      const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+      for (let i = 0; i < normalized.length; i += 1) {
+        const char = normalized[i];
+        const next = normalized[i + 1];
+        if (char === '"' && inQuotes && next === '"') {
+          current += '"';
+          i += 1;
+        } else if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          row.push(current);
+          current = '';
+        } else if (char === '\n' && !inQuotes) {
+          row.push(current);
+          rows.push(row);
+          row = [];
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      if (current || row.length) {
+        row.push(current);
+        rows.push(row);
+      }
+      if (inQuotes) {
+        throw new Error('CSV 따옴표가 닫히지 않았습니다.');
+      }
+
+      const headers = (rows.shift() || []).map(cell => cell.trim());
+      return {
+        headers,
+        rows: rows
+          .filter(cells => cells.some(cell => cell.trim() !== ''))
+          .map(cells => Object.fromEntries(headers.map((header, index) => [header, (cells[index] || '').trim()])))
+      };
+    }
+
+    async function readJsonResponse(response) {
+      const text = await response.text();
+      if (!text) return {};
+      try {
+        return JSON.parse(text);
+      } catch (error) {
+        throw new Error('API 응답을 JSON으로 읽지 못했습니다.');
+      }
+    }
+
+    function normalizeApiResult(data, requestedRows) {
+      if (!data || !Array.isArray(data.rows)) {
+        throw new Error('API 응답에 rows 배열이 없습니다.');
+      }
+      const rows = data.rows.map(row => ({ ...row }));
+      return {
+        mode: data.mode || 'rules',
+        rows,
+        summary: normalizeSummary(data.summary, rows, requestedRows),
+        warnings: Array.isArray(data.warnings) ? data.warnings.map(String) : []
+      };
+    }
+
+    function buildLocalResult(rows, reason) {
+      const appliedRows = localApplyRules(rows);
+      return {
+        mode: 'rules',
+        rows: appliedRows,
+        summary: normalizeSummary(null, appliedRows, rows.length),
+        warnings: [`API를 사용할 수 없어 브라우저 fallback 규칙을 사용했습니다: ${reason}`]
+      };
+    }
+
+    function normalizeSummary(apiSummary, rows, requestedRows) {
+      const summarySource = apiSummary && typeof apiSummary === 'object' ? apiSummary : {};
+      const total = numberOr(summarySource.total, rows.length || requestedRows || 0);
+      const needsCheck = numberOr(summarySource.needsCheck, countRowsByMarker(rows, marker => marker && marker !== '아니오'));
+      const duplicates = numberOr(summarySource.duplicates, rows.filter(row => row['중복여부'] === '예').length);
+      return { total, needsCheck, duplicates };
+    }
+
+    function numberOr(value, fallback) {
+      const number = Number(value);
+      return Number.isFinite(number) ? number : fallback;
+    }
+
+    function countRowsByMarker(rows, predicate) {
+      return rows.filter(row => predicate(String(row['확인필요'] || ''))).length;
+    }
+
+    function localApplyRules(rows) {
+      const duplicateCounts = new Map();
+      rows.forEach(row => {
+        const key = duplicateKey(row);
+        duplicateCounts.set(key, (duplicateCounts.get(key) || 0) + 1);
+      });
+
+      // Class-safe browser mirror of /api/apply-rules for offline fallback.
+      return rows.map((row, index) => {
+        const status = normalizeStatus(row['처리상태']);
+        const priority = normalizePriority(row['우선순위']);
+        const duplicate = duplicateCounts.get(duplicateKey(row)) > 1;
+        const issues = summarizeIssues(row, status, priority, duplicate);
+
+        return {
+          ...row,
+          처리상태: status,
+          우선순위: priority,
+          중복여부: duplicate ? '예' : '아니오',
+          확인필요: issues.length > 0 ? '예' : '아니오',
+          정리메모: issues.length > 0 ? issues.join(', ') : '자동 정리 완료',
+          _row: index + 1
+        };
+      });
+    }
+
+    function summarizeIssues(row, normalizedStatus, normalizedPriority, duplicate) {
+      const issues = [];
+      const dueDate = textValue(row['처리기한']);
+
+      if (!dueDate) {
+        issues.push('처리기한 누락');
+      } else if (!isValidIsoDate(dueDate)) {
+        issues.push('처리기한 형식 확인');
+      }
+      if (normalizedStatus === '확인필요') {
+        issues.push('처리상태 확인');
+      }
+      if (normalizedPriority === '확인필요') {
+        issues.push('우선순위 확인');
+      }
+      if (duplicate) {
+        issues.push('중복 의심');
+      }
+
+      return issues;
+    }
+
+    function normalizeStatus(value) {
+      const key = compact(value);
+      const map = new Map([
+        ['진행', '진행'],
+        ['진행중', '진행'],
+        ['inprogress', '진행'],
+        ['doing', '진행'],
+        ['완료', '완료'],
+        ['처리완료', '완료'],
+        ['done', '완료'],
+        ['finished', '완료'],
+        ['대기', '미확인'],
+        ['미처리', '미확인'],
+        ['todo', '미확인'],
+        ['보류', '확인필요'],
+        ['hold', '확인필요']
+      ]);
+
+      return map.get(key) || '확인필요';
+    }
+
+    function normalizePriority(value) {
+      const key = compact(value);
+      const map = new Map([
+        ['긴급', '높음'],
+        ['상', '높음'],
+        ['높음', '높음'],
+        ['high', '높음'],
+        ['중', '보통'],
+        ['보통', '보통'],
+        ['normal', '보통'],
+        ['medium', '보통'],
+        ['하', '낮음'],
+        ['낮음', '낮음'],
+        ['low', '낮음']
+      ]);
+
+      return map.get(key) || '확인필요';
+    }
+
+    function duplicateKey(row) {
+      return [
+        row['부서명'],
+        row['업무유형'],
+        row['제목'],
+        row['처리기한'],
+        row['내용']
+      ].map(compact).join('|');
+    }
+
+    function compact(value) {
+      return textValue(value).toLowerCase().replace(/\s+/g, '');
+    }
+
+    function textValue(value) {
+      return String(value == null ? '' : value).trim();
+    }
+
+    function isValidIsoDate(value) {
+      const raw = textValue(value);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return false;
+
+      const date = new Date(`${raw}T00:00:00.000Z`);
+      if (Number.isNaN(date.getTime())) return false;
+
+      const yyyy = String(date.getUTCFullYear()).padStart(4, '0');
+      const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+      const dd = String(date.getUTCDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}` === raw;
+    }
+
+    function renderUploads() {
+      uploadList.innerHTML = uploads.length
+        ? uploads.map(item => `
+            <tr>
+              <td>${escapeHtml(item.teamName)}</td>
+              <td>${escapeHtml(item.submitter)}</td>
+              <td>${escapeHtml(item.fileName)}</td>
+              <td>${item.rowCount}</td>
+              <td><span class="tag">${escapeHtml(item.status)}</span></td>
+            </tr>
+          `).join('')
+        : '<tr><td colspan="5">아직 업로드된 파일이 없습니다.</td></tr>';
+    }
+
+    function renderResults() {
+      if (resultRows.length) {
+        const summaryText = latestSummary
+          ? `총 ${latestSummary.total}행, 확인필요 ${latestSummary.needsCheck}행, 중복후보 ${latestSummary.duplicates}행`
+          : `${resultRows.length}개 행`;
+        const warningText = latestWarnings.length ? ` 안내: ${latestWarnings.join(' ')}` : '';
+        summary.textContent = `결과표: ${uploads.length}개 CSV를 통합했습니다. ${summaryText}.${warningText}`;
+      } else {
+        summary.textContent = '규칙 적용 후 결과표가 표시됩니다.';
+      }
+      resultTable.innerHTML = resultRows.length
+        ? resultRows.map(row => `
+            <tr>
+              <td>${escapeHtml(row['팀명'])}</td>
+              <td>${escapeHtml(row['제출자'])}</td>
+              <td>${escapeHtml(row['부서명'])}</td>
+              <td>${escapeHtml(row['업무유형'])}</td>
+              <td>${escapeHtml(row['제목'])}</td>
+              <td>${escapeHtml(row['처리상태'])}</td>
+              <td>${escapeHtml(row['처리기한'])}</td>
+              <td>${escapeHtml(row['우선순위'])}</td>
+              <td>${escapeHtml(row['확인필요'])}</td>
+              <td>${escapeHtml(row['정리메모'])}</td>
+            </tr>
+          `).join('')
+        : '<tr><td colspan="10">아직 결과가 없습니다.</td></tr>';
+    }
+
+    function toCsv(rows) {
+      const headers = ['팀명', '제출자', '부서명', '업무유형', '제목', '처리상태', '처리기한', '우선순위', '내용', '확인필요', '정리메모', '원본파일'];
+      return [
+        headers.join(','),
+        ...rows.map(row => headers.map(header => csvCell(row[header] || '')).join(','))
+      ].join('\n');
+    }
+
+    function csvCell(value) {
+      const text = String(value);
+      return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    }
+
+    function setStatus(kind, message) {
+      apiStatus.className = `status ${kind}`.trim();
+      apiStatus.textContent = message;
+    }
+
+    function statusSummaryText(resultSummary, warnings) {
+      const warningText = warnings.length ? ` 경고 ${warnings.length}개.` : '';
+      return `총 ${resultSummary.total}행, 확인필요 ${resultSummary.needsCheck}행, 중복후보 ${resultSummary.duplicates}행.${warningText}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[char]);
+    }
+  </script>
+</body>
+</html>
